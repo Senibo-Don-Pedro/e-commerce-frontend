@@ -1,12 +1,7 @@
-export type ApiSuccessResponse<T> = {
-  success: true;
+export type ApiResponse<T> = {
+  success: boolean;
   message: string;
-  data: T;
-};
-
-export type ApiErrorResponse = {
-  success: false;
-  message: string;
+  data?: T | null;
   errors?: string[] | null;
 };
 
@@ -20,10 +15,7 @@ export type PaginatedResponse<T> = {
   has_prev: boolean;
 };
 
-// STEP 3: This is the magic. We create a new, flexible type.
-// An ApiResponse can be EITHER a success OR an error.
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
-
-
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4403/api/v1";
+
+export const API_IP = process.env.NEXT_PUBLIC_API_IP || "http://localhost:4403";

@@ -8,6 +8,9 @@ import {
 export async function getProducts(
   params: ProductResponseParams
 ): Promise<PaginatedProductsResponse> {
+
+  
+
   const query = new URLSearchParams();
 
   // Append parameters to the query string if they exist

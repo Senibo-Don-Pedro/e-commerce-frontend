@@ -61,9 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-lg font-bold text-primary">
             {formatCurrency(product.price)}
           </p>
-          <Button size="sm" onClick={handleAddToCart}>
-            Add to Cart
-          </Button>
+          
         </CardFooter>
       </Card>
     </Link>

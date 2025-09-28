@@ -3,24 +3,56 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-// Star import is now removed
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useAuthStore } from "@/store/auth-store";
+import { useCartStore } from "@/store/cart-store";
+import { addItemToCart } from "@/actions/cart-actions";
+
 import { ArrowLeft, Minus, Plus } from "lucide-react";
 import { Product } from "@/types/products";
 import { formatCurrency } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import SubmittableButton from "@/components/ui/button-with-submit"; // Using your reusable button
 
 type ProductDetailsClientProps = {
   product: Product;
 };
 
-export default function ProductDetailsClient({
-  product,
-}: ProductDetailsClientProps) {
+export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
   const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
+  const router = useRouter();
 
-  const handleAddToCart = () => {
-    console.log(`Added ${quantity} of ${product.name} to cart.`);
-    // In a real app, you'd call a function here to update your cart state.
+  // 1. Get what we need from our Zustand stores
+  const { accessToken, isAuthenticated } = useAuthStore();
+  const setCart = useCartStore((state) => state.setCart);
+
+  // 2. The handler function for the "Add to Cart" button click
+  const handleAddToCart = async () => {
+    // First, check if the user is logged in
+    if (!isAuthenticated() || !accessToken) {
+      toast.error("Please sign in to add items to your cart.");
+      router.push("/auth"); // Redirect to the authentication page
+      return;
+    }
+
+    setIsAdding(true);
+
+    // Call the server action with the selected quantity and the auth token
+    const response = await addItemToCart(
+      { productId: product.id, quantity },
+      accessToken
+    );
+
+    if (response.success && response.data) {
+      // 3. On success, update the global cart store with the fresh data
+      setCart(response.data);
+      toast.success(`${quantity} x ${product.name} added to your cart!`);
+    } else {
+      toast.error(response.message || "Could not add item to cart.");
+    }
+
+    setIsAdding(false);
   };
 
   const placeholderImageUrl = `https://placehold.co/600x600/e2e8f0/64748b?text=${encodeURIComponent(
@@ -56,8 +88,6 @@ export default function ProductDetailsClient({
             {product.category}
           </p>
 
-          {/* --- STAR RATING SECTION REMOVED --- */}
-
           <p className="text-3xl font-bold text-blue-600 mb-4">
             {formatCurrency(product.price)}
           </p>
@@ -67,27 +97,35 @@ export default function ProductDetailsClient({
           <div className="flex items-center gap-4 mb-6">
             <span className="font-semibold text-sm">QUANTITY:</span>
             <div className="flex items-center border border-gray-300 rounded-lg">
-              <Button
+              <SubmittableButton
                 variant="ghost"
                 size="icon"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={isAdding}
               >
                 <Minus className="h-4 w-4" />
-              </Button>
+              </SubmittableButton>
               <span className="px-4 font-bold">{quantity}</span>
-              <Button
+              <SubmittableButton
                 variant="ghost"
                 size="icon"
                 onClick={() => setQuantity(quantity + 1)}
+                disabled={isAdding}
               >
                 <Plus className="h-4 w-4" />
-              </Button>
+              </SubmittableButton>
             </div>
           </div>
 
-          <Button onClick={handleAddToCart} size="lg" className="w-full">
+          {/* 4. Use the reusable submittable button and connect the handler */}
+          <SubmittableButton
+            onClick={handleAddToCart}
+            isSubmitting={isAdding}
+            size="lg"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
             Add to Cart
-          </Button>
+          </SubmittableButton>
         </div>
       </div>
     </div>

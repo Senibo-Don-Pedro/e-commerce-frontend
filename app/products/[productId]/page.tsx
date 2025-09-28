@@ -1,7 +1,6 @@
-import { notFound } from "next/navigation";
-// Import your actual fetching function
-import { getProductById } from "@/api/get-single-product";
-import ProductDetailsClient from "@/components/products/product-details"; // Make sure this path is correct
+import { Suspense } from "react"; // 1. Import Suspense
+import ProductDetailsData from "@/components/products/product-details-data"; // 2. Import our new data component
+import ProductDetailsSkeleton from "@/components/products/product-details-skeleton"; // 3. Import our new skeleton component
 
 type ProductPageProps = {
   params: {
@@ -9,22 +8,18 @@ type ProductPageProps = {
   };
 };
 
-// This component now becomes async to allow for data fetching
-export default async function ProductPage({ params }: ProductPageProps) {
-  const awaitedParams = await params;
-  const { productId } = awaitedParams;
+// 4. The page is NO LONGER async. It renders instantly.
+export default function ProductPage({ params }: ProductPageProps) {
+  const { productId } = params;
 
-  // --- Live Data Fetching ---
-  // 1. We call our robust function to get the product data.
-  const response = await getProductById(productId);
-
-  // 2. We check the 'success' flag from the API response.
-  //    If the call failed or the product was not found, we show a 404 page.
-  if (!response || !response.success) {
-    notFound(); // This is a special Next.js function that renders the 404 page.
-  }
-
-  // 3. If the call was successful, we know `response.data` contains our product.
-  //    We pass the live product data to our client component.
-  return <ProductDetailsClient product={response.data} />;
+  return (
+    // You can wrap this in any parent layout components if you have them
+    <div className="w-full bg-white">
+      {/* 5. We wrap the data-fetching component in Suspense */}
+      <Suspense fallback={<ProductDetailsSkeleton />}>
+        {/* The component that actually fetches the data */}
+        <ProductDetailsData productId={productId} />
+      </Suspense>
+    </div>
+  );
 }
