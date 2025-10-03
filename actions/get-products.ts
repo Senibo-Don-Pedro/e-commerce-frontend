@@ -27,7 +27,6 @@ export async function getProducts(
   try {
     const res = await fetch(url, {
       // Use Next.js caching for performance
-      next: { revalidate: 3600 }, // Re-fetch data at most once per hour
     });
 
     const responseBody = (await res.json()) as PaginatedProductsResponse;
