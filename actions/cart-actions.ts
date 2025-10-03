@@ -1,12 +1,15 @@
 "use server";
 
+import { getAuthToken } from "@/lib/auth-cookies";
 import { API_BASE_URL } from "@/types";
 import { AddToCartPayload, CartResponse } from "@/types/cart";
 
 export async function addItemToCart(
-  payload: AddToCartPayload,
-  accessToken: string
+  payload: AddToCartPayload
 ): Promise<CartResponse> {
+  // 1. Get the token on the server from the cookie
+  const accessToken = await getAuthToken();
+
   try {
     const response = await fetch(`${API_BASE_URL}/cart/items`, {
       method: "POST",
@@ -30,24 +33,24 @@ export async function addItemToCart(
   }
 }
 
-
 /**
  * Gets the current user's cart.
  * @param accessToken - The user's JWT for authentication.
  * @returns The user's cart object or an error response.
  */
-export async function getCart(accessToken: string): Promise<CartResponse> {
+export async function getCart(): Promise<CartResponse> {
+  const accessToken = await getAuthToken();
+
   try {
     const response = await fetch(`${API_BASE_URL}/cart`, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
-      next: { revalidate: 0 }, // Ensure cart is never cached
+      cache: "no-store", // Better than next.revalidate for dynamic data
     });
 
     return response.json();
-
   } catch (error) {
     console.error("[GET_CART_ACTION] Error:", error);
     return {
@@ -66,20 +69,20 @@ export async function getCart(accessToken: string): Promise<CartResponse> {
  * @returns The updated cart object or an error response.
  */
 export async function removeItemFromCart(
-  itemId: string,
-  accessToken: string
+  itemId: string
 ): Promise<CartResponse> {
+  const accessToken = await getAuthToken();
   try {
     const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     return response.json();
-    
-  } catch (error) { // Corrected the typo here
+  } catch (error) {
+    // Corrected the typo here
     console.error("[REMOVE_FROM_CART_ACTION] Error:", error);
     return {
       success: false,

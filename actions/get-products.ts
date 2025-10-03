@@ -1,4 +1,6 @@
-import { API_BASE_URL, ApiResponse } from "@/types";
+"use server";
+
+import { API_BASE_URL } from "@/types";
 import {
   PaginatedProductsResponse,
   Product,
@@ -8,9 +10,6 @@ import {
 export async function getProducts(
   params: ProductResponseParams
 ): Promise<PaginatedProductsResponse> {
-
-  
-
   const query = new URLSearchParams();
 
   // Append parameters to the query string if they exist

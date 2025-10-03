@@ -1,4 +1,4 @@
-import { getProducts } from "@/api/get-products";
+import { getProducts } from "@/actions/get-products";
 import { ProductResponseParams } from "@/types/products";
 import ApiErrorDisplay from "@/components/ui/api-error-display";
 import ProductList from "./product-list";

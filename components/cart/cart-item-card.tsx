@@ -32,11 +32,11 @@ export default function CartItemCard({ item }: CartItemCardProps) {
     }
 
     setIsRemoving(true);
-    const response = await removeItemFromCart(item.itemId, accessToken);
+    const response = await removeItemFromCart(item.itemId);
 
     if (response.success && response.data) {
       setCart(response.data);
-      toast.success(`${item.productName} removed from cart.`);
+      toast.success(`"${item.productName}" removed from cart.`);
     } else {
       toast.error(response.message || "Failed to remove item.");
     }

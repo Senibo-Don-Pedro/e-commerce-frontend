@@ -18,7 +18,9 @@ type ProductDetailsClientProps = {
   product: Product;
 };
 
-export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
+export default function ProductDetailsClient({
+  product,
+}: ProductDetailsClientProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const router = useRouter();
@@ -39,10 +41,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
     setIsAdding(true);
 
     // Call the server action with the selected quantity and the auth token
-    const response = await addItemToCart(
-      { productId: product.id, quantity },
-      accessToken
-    );
+    const response = await addItemToCart({ productId: product.id, quantity });
 
     if (response.success && response.data) {
       // 3. On success, update the global cart store with the fresh data

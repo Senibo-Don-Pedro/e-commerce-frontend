@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-// A skeleton for a single cart item
+// A skeleton for a single cart item row
 const CartItemSkeleton = () => (
   <div className="flex items-center gap-4 p-4 border rounded-lg">
     <Skeleton className="h-24 w-24 rounded-md flex-shrink-0" />
@@ -12,7 +12,7 @@ const CartItemSkeleton = () => (
   </div>
 );
 
-// The full page skeleton
+// The skeleton for the entire page
 export default function CartPageSkeleton() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -30,9 +30,18 @@ export default function CartPageSkeleton() {
           <div className="bg-gray-50 rounded-lg p-6 sticky top-24">
             <Skeleton className="h-6 w-1/2 mb-4" />
             <div className="space-y-3">
-              <div className="flex justify-between"><Skeleton className="h-4 w-1/4" /><Skeleton className="h-4 w-1/3" /></div>
-              <div className="flex justify-between"><Skeleton className="h-4 w-1/4" /><Skeleton className="h-4 w-1/3" /></div>
-              <div className="border-t pt-4 mt-4 flex justify-between"><Skeleton className="h-6 w-1/3" /><Skeleton className="h-6 w-1/4" /></div>
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-4 w-1/3" />
+              </div>
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-4 w-1/3" />
+              </div>
+              <div className="border-t pt-4 mt-4 flex justify-between">
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-6 w-1/4" />
+              </div>
             </div>
             <Skeleton className="h-10 w-full mt-6" />
           </div>

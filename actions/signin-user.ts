@@ -2,6 +2,8 @@
 import { SigninType } from "@/schemas/auth-schema";
 import { SigninResponse } from "@/types/auth";
 import { API_BASE_URL } from "@/types";
+import { setAuthCookie } from "@/lib/auth-cookies";
+
 
 export async function signIn(values: SigninType) {
   try {
@@ -15,10 +17,7 @@ export async function signIn(values: SigninType) {
 
     const data: SigninResponse = await response.json();
 
-    console.log(data);
-
     if (!response.ok) {
-
       return {
         success: data.success,
         message: data.message,
@@ -26,8 +25,12 @@ export async function signIn(values: SigninType) {
       };
     }
 
+    // 2. On successful login, set the cookie
+    if (data.success && data.data?.accessToken) {
+      await setAuthCookie(data.data.accessToken);
+    }
+
     return data;
-    
   } catch (error) {
     console.error("Error creating user", error);
     return {

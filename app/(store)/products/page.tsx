@@ -5,13 +5,17 @@ import ProductListSkeleton from "@/components/products/product-list-skeleton"; /
 import ProductData from "@/components/products/product-data"; // 3. Import our new data component
 
 type ProductsPageProps = {
-  searchParams: ProductResponseParams;
+  searchParams: Promise<ProductResponseParams>;
 };
 
 // 4. The page is NO LONGER an async function. It renders instantly.
-export default function ProductsPage({ searchParams }: ProductsPageProps) {
+export default async function ProductsPage({
+  searchParams,
+}: ProductsPageProps) {
   // We don't need `await searchParams` here.
   // We pass the searchParams object directly down.
+
+  const params = await searchParams;
 
   return (
     <div className="w-full bg-gray-50">
@@ -22,7 +26,8 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
             Here Are Our Products
           </h1>
           <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto">
-            Browse our curated collection of high-quality items, selected just for you.
+            Browse our curated collection of high-quality items, selected just
+            for you.
           </p>
         </div>
       </section>
@@ -38,7 +43,7 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
           <main className="lg:col-span-3">
             {/* 5. THIS IS THE MAGIC */}
             <Suspense fallback={<ProductListSkeleton />}>
-              <ProductData searchParams={searchParams} />
+              <ProductData searchParams={params} />
             </Suspense>
           </main>
         </div>

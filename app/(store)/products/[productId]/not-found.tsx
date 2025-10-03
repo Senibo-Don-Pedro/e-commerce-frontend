@@ -10,7 +10,7 @@ export default function ProductNotFound() {
         Product Not Found
       </h1>
       <p className="text-lg text-gray-500 mb-8 max-w-md">
-        Sorry, we couldn't find the product you were looking for. It might be
+        Sorry, we couldn&apos;t find the product you were looking for. It might be
         out of stock or no longer available.
       </p>
       <Button asChild>

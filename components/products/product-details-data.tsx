@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProductById } from "@/api/get-single-product";
+import { getProductById } from "@/actions/get-single-product";
 import ProductDetailsClient from "./product-details"; // Your original client component
 
 type ProductDetailsDataProps = {

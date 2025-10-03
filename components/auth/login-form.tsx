@@ -22,8 +22,7 @@ import { useState, useTransition } from "react";
 import { signIn } from "@/actions/signin-user";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation"; // Import the router
-import Link from "next/link";
-import { API_BASE_URL, API_IP } from "@/types";
+import { API_IP } from "@/types";
 
 type FormErrorState = {
   message?: string;
@@ -41,7 +40,7 @@ export function LoginForm({ onToggleView }: LoginFormProps) {
   const router = useRouter();
 
   // Get the login action from the store
-  const { login: loginToStore } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   const form = useForm<SigninType>({
     resolver: zodResolver(SigninSchema),
@@ -59,7 +58,7 @@ export function LoginForm({ onToggleView }: LoginFormProps) {
       signIn(values).then((data) => {
         if (data.success && data.data) {
           //On success, call the store's login action with the user data and token
-          loginToStore(data.data, data.data.accessToken);
+          setUser(data.data);
 
           toast.success("Login successful! Redirecting...");
 
@@ -149,7 +148,7 @@ export function LoginForm({ onToggleView }: LoginFormProps) {
           </Button>
         </div>
         <div className="text-center text-sm">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Button
             variant={"link"}
             type="button"

@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button"; // Import the Button component
 import { Product } from "@/types/products";
 import { formatCurrency } from "@/lib/utils";
 import React from "react";
@@ -23,15 +22,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     product.name
   )}`;
 
-  // Handle the Add to Cart button click
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Stop the event from propagating to the parent <Link> component
-    e.stopPropagation();
-    e.preventDefault();
-
-    console.log(`Added ${product.name} to cart!`);
-    // Here you would call your global state management function for the cart
-  };
 
   return (
     <Link href={`/products/${product.id}`} className="group block h-full">

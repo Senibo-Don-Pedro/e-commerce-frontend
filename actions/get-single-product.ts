@@ -1,3 +1,5 @@
+"use server";
+
 import { Product } from "@/types/products";
 import { ApiResponse } from "@/types";
 import { API_BASE_URL } from "@/types";

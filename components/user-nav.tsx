@@ -14,22 +14,28 @@ import {
 import Link from "next/link";
 
 import { useAuthStore } from "@/store/auth-store";
-import { useState, useEffect } from "react";
+import { useCartStore } from "@/store/cart-store";
+import { useState, useEffect, useTransition } from "react";
+import { signOut } from "@/actions/signout-user";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { LogOut, ShoppingBag, User } from "lucide-react";
 
 export default function UserNav() {
-  // Get the user data and logout action from the store
-  const { user, logout, isAuthenticated } = useAuthStore();
+  // ✅ Updated: Use clearUser instead of logout
+  const { user, clearUser, isAuthenticated } = useAuthStore();
+  const { clearCart } = useCartStore();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  // --- A CRITICAL FIX FOR HYDRATION ---
-  // This ensures the component only renders on the client after the store is ready.
+  // Hydration fix - ensures consistent rendering
   const [hasMounted, setHasMounted] = useState(false);
-
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
   if (!hasMounted) {
-    // Render a placeholder or nothing on the server and during initial client render
+    // Render a placeholder during SSR and initial hydration
     return <div className="h-10 w-10" />;
   }
 
@@ -41,11 +47,36 @@ export default function UserNav() {
       .toUpperCase();
   };
 
-  // 3. Use the store's state to decide what to render
+  const handleLogout = () => {
+    startTransition(async () => {
+      try {
+        // 1. Clear user from Zustand store first (before redirect)
+        clearUser();
+
+        // 2. Clear cart
+        clearCart();
+
+        // 3. Call the server action to clear the httpOnly cookie
+        // Note: signOut() will automatically redirect, so no need for router.push()
+        await signOut();
+
+        // 4. Show success message (may not be visible due to redirect)
+        toast.success("Logged out successfully");
+      } catch (error) {
+        toast.error("Failed to logout. Please try again.");
+        console.error("Logout error:", error);
+      }
+    });
+  };
+
+  // Show sign in button if not authenticated
   if (!isAuthenticated() || !user) {
     return (
-      <Button variant={"link"} asChild>
-        <Link href="/auth">Sign In</Link>
+      <Button variant="default" asChild>
+        <Link href="/auth">
+          <User className="mr-2 h-4 w-4" />
+          Sign In
+        </Link>
       </Button>
     );
   }
@@ -53,11 +84,16 @@ export default function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button 
+          variant="ghost" 
+          className="relative h-10 w-10 rounded-full"
+          disabled={isPending}
+        >
           <Avatar className="h-10 w-10">
-            {/* You can add a real user image URL here if available */}
             <AvatarImage src="" alt={`@${user.firstname}`} />
-            <AvatarFallback>{getInitials(user.firstname)}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary">
+              {getInitials(user.firstname)}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -70,17 +106,40 @@ export default function UserNav() {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
+            {user.role && (
+              <p className="text-xs leading-none text-muted-foreground mt-1">
+                Role: {user.role}
+              </p>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/orders">View Orders</Link>
+            <Link href="/orders">
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              View Orders
+            </Link>
           </DropdownMenuItem>
+          
+          {/* Optional: Add admin link if user is admin */}
+          {user.role === "ADMIN" && (
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/admin">
+                <User className="mr-2 h-4 w-4" />
+                Admin Dashboard
+              </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">
-          Logout
+        <DropdownMenuItem 
+          onSelect={handleLogout} 
+          className="cursor-pointer text-red-600 focus:text-red-600"
+          disabled={isPending}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {isPending ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

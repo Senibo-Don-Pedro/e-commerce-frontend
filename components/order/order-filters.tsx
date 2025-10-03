@@ -2,7 +2,6 @@
 
 import { useState, FormEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { PRODUCT_CATEGORIES } from "@/types/products";
 import {
   Select,
   SelectContent,
@@ -10,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -21,21 +19,20 @@ import {
 } from "@/components/ui/sheet";
 import { Filter as FilterIcon } from "lucide-react";
 
-export default function ProductFilters() {
+// The available order statuses for filtering
+const ORDER_STATUSES = ["PENDING", "PAID", "SHIPPED", "CANCELLED"] as const;
+
+export default function OrderFilters() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  // --- LOCAL STATE FOR ALL FILTERS ---
-  // We initialize the state with the current values from the URL
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("searchTerm") || "");
-  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
-  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
-  const [category, setCategory] = useState(searchParams.get("category") || "all");
+  // --- LOCAL STATE FOR FILTERS ---
+  const [status, setStatus] = useState(searchParams.get("status") || "all");
   const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "createdAt");
+  const [sortDirection, setSortDirection] = useState(searchParams.get("sortDirection") || "desc");
   const [pageSize, setPageSize] = useState(searchParams.get("pageSize") || "10");
 
-  // State to manage the Sheet's open/closed status for mobile
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // --- FORM SUBMISSION HANDLER ---
@@ -44,75 +41,37 @@ export default function ProductFilters() {
     const params = new URLSearchParams();
 
     // Build the query string from our local state
-    if (searchTerm) params.set("searchTerm", searchTerm);
-    if (minPrice) params.set("minPrice", minPrice);
-    if (maxPrice) params.set("maxPrice", maxPrice);
-    if (category !== "all") params.set("category", category);
+    if (status !== "all") params.set("status", status);
     if (sortBy) params.set("sortBy", sortBy);
+    if (sortDirection) params.set("sortDirection", sortDirection);
     if (pageSize) params.set("pageSize", pageSize);
 
-    // No need to delete 'page', as it's not included unless we add it
     router.push(`${pathname}?${params.toString()}`);
-    setIsSheetOpen(false); // Close the sheet on mobile after applying
+    setIsSheetOpen(false); // Close the sheet on mobile
   };
 
   // --- CLEAR FILTERS HANDLER ---
   const handleClearFilters = () => {
-    // 1. Reset all local state to defaults
-    setSearchTerm("");
-    setMinPrice("");
-    setMaxPrice("");
-    setCategory("all");
+    setStatus("all");
     setSortBy("createdAt");
+    setSortDirection("desc");
     setPageSize("10");
-
-    // 2. Navigate to the clean URL
     router.push(pathname);
-    setIsSheetOpen(false); // Close the sheet on mobile
+    setIsSheetOpen(false);
   };
 
   // The actual filter form JSX
   const filterForm = (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Search Input */}
+      {/* Filter by Status */}
       <div>
-        <h3 className="font-semibold mb-2">Search</h3>
-        <Input
-          placeholder="Product name or SKU..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      {/* Price Range */}
-      <div>
-        <h3 className="font-semibold mb-2">Price Range (NGN)</h3>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            placeholder="Min"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-          />
-          <span>-</span>
-          <Input
-            type="number"
-            placeholder="Max"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* Category Select Dropdown */}
-      <div>
-        <h3 className="font-semibold mb-2">Category</h3>
-        <Select value={category} onValueChange={setCategory}>
+        <h3 className="font-semibold mb-2">Filter by Status</h3>
+        <Select value={status} onValueChange={setStatus}>
           <SelectTrigger><SelectValue/></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {PRODUCT_CATEGORIES.map((cat) => (
-              <SelectItem key={cat} value={cat}>{cat.replace(/_/g, " ")}</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
+            {ORDER_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -126,8 +85,7 @@ export default function ProductFilters() {
             <SelectTrigger><SelectValue/></SelectTrigger>
             <SelectContent>
               <SelectItem value="createdAt">Newest</SelectItem>
-              <SelectItem value="price">Price</SelectItem>
-              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="totalAmount">Total Amount</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -146,7 +104,7 @@ export default function ProductFilters() {
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-2 pt-4 border-t">
-        <Button type="submit" className="w-full">Apply Filters</Button>
+        <Button type="submit" className="w-full">Apply</Button>
         <Button type="button" variant="ghost" className="w-full" onClick={handleClearFilters}>Clear All</Button>
       </div>
     </form>
@@ -160,7 +118,7 @@ export default function ProductFilters() {
           <SheetTrigger asChild>
             <Button variant="outline" className="w-full">
               <FilterIcon className="h-4 w-4 mr-2"/>
-              Show Filters & Sort
+              Filter & Sort Orders
             </Button>
           </SheetTrigger>
           <SheetContent>

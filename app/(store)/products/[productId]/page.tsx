@@ -3,14 +3,14 @@ import ProductDetailsData from "@/components/products/product-details-data"; // 
 import ProductDetailsSkeleton from "@/components/products/product-details-skeleton"; // 3. Import our new skeleton component
 
 type ProductPageProps = {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 };
 
 // 4. The page is NO LONGER async. It renders instantly.
-export default function ProductPage({ params }: ProductPageProps) {
-  const { productId } = params;
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { productId } = await params;
 
   return (
     // You can wrap this in any parent layout components if you have them
