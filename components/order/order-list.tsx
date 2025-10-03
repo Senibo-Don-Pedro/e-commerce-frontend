@@ -11,7 +11,7 @@ export default function OrderList({ orders }: OrderListProps) {
     return (
       <div className="text-center text-gray-500 py-10">
         <p className="text-lg font-medium">No orders found.</p>
-        <p className="text-sm">It looks like you haven't placed any orders yet.</p>
+        <p className="text-sm">It looks like you haven&apos;t placed any orders yet.</p>
       </div>
     );
   }

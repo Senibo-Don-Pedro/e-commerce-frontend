@@ -3,7 +3,6 @@
 import { API_BASE_URL } from "@/types";
 import {
   PaginatedProductsResponse,
-  Product,
   ProductResponseParams,
 } from "@/types/products";
 

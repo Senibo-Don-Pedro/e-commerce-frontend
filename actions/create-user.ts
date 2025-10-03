@@ -1,12 +1,11 @@
 "use server";
 import { SignupType } from "@/schemas/auth-schema";
 import { SignupResponse } from "@/types/auth";
-import { z } from "zod";
 import { API_BASE_URL } from "@/types";
 
 export async function createUser(values: SignupType) {
   try {
-    let response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -14,7 +13,7 @@ export async function createUser(values: SignupType) {
       body: JSON.stringify(values),
     });
 
-    let data: SignupResponse = await response.json();
+    const data: SignupResponse = await response.json();
 
     if (!response.ok && !data.success) {
       return {

@@ -17,7 +17,6 @@ import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { useState, useEffect, useTransition } from "react";
 import { signOut } from "@/actions/signout-user";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LogOut, ShoppingBag, User } from "lucide-react";
 
@@ -25,7 +24,7 @@ export default function UserNav() {
   // ✅ Updated: Use clearUser instead of logout
   const { user, clearUser, isAuthenticated } = useAuthStore();
   const { clearCart } = useCartStore();
-  const router = useRouter();
+  
   const [isPending, startTransition] = useTransition();
 
   // Hydration fix - ensures consistent rendering

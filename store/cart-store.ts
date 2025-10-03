@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Cart, CartItem } from '@/types/cart'; // Import your cart types
+import { Cart } from '@/types/cart'; // Import your cart types
 
 // 1. Define the shape of our cart state and actions
 type CartState = {
