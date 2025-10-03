@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useCartStore } from "@/store/cart-store";
 import { getCart } from "@/actions/cart-actions";
 import CartItemCard from "./cart-item-card";
@@ -19,6 +19,12 @@ type CartDataProps = {
 export default function CartData({ isAuthenticated }: CartDataProps) {
   const { cart, setCart } = useCartStore();
   const [isRedirecting, startTransition] = useTransition();
+  const [isClient, setIsClient] = useState(false); // New state to check if we are on the client
+
+  useEffect(() => {
+    // Set isClient to true after the component has mounted
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     // ✅ Fetch cart only if authenticated and cart not loaded
@@ -52,6 +58,11 @@ export default function CartData({ isAuthenticated }: CartDataProps) {
       }
     });
   };
+
+  if (!isClient) {
+    // Avoid hydration issues by returning null until the component is mounted on the client
+    return null;
+  }
 
   if (!isAuthenticated) {
     return (

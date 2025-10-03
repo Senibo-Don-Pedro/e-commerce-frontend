@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { addItemToCart } from "@/actions/cart-actions";
 
@@ -13,6 +12,7 @@ import { ArrowLeft, Minus, Plus } from "lucide-react";
 import { Product } from "@/types/products";
 import { formatCurrency } from "@/lib/utils";
 import SubmittableButton from "@/components/ui/button-with-submit"; // Using your reusable button
+import { getAuthToken } from "@/lib/auth-cookies";  // Assuming this is where your function is
 
 type ProductDetailsClientProps = {
   product: Product;
@@ -23,16 +23,26 @@ export default function ProductDetailsClient({
 }: ProductDetailsClientProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | undefined>(undefined);  // State for access token
   const router = useRouter();
 
-  // 1. Get what we need from our Zustand stores
-  const { accessToken, isAuthenticated } = useAuthStore();
+  // Get the cart setter function from Zustand store
   const setCart = useCartStore((state) => state.setCart);
 
-  // 2. The handler function for the "Add to Cart" button click
+  // Fetch token from cookie when the component mounts
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = await getAuthToken();
+      setAccessToken(token);  // Store token in state
+    };
+    
+    fetchToken();
+  }, []);
+
+  // Handler function for the "Add to Cart" button click
   const handleAddToCart = async () => {
-    // First, check if the user is logged in
-    if (!isAuthenticated() || !accessToken) {
+    // First, check if the user is logged in by verifying the access token
+    if (!accessToken) {
       toast.error("Please sign in to add items to your cart.");
       router.push("/auth"); // Redirect to the authentication page
       return;
@@ -44,7 +54,7 @@ export default function ProductDetailsClient({
     const response = await addItemToCart({ productId: product.id, quantity });
 
     if (response.success && response.data) {
-      // 3. On success, update the global cart store with the fresh data
+      // On success, update the global cart store with the fresh data
       setCart(response.data);
       toast.success(`${quantity} x ${product.name} added to your cart!`);
     } else {

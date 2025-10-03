@@ -2,24 +2,34 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { removeItemFromCart } from "@/actions/cart-actions";
 import { CartItem } from "@/types/cart";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { getAuthToken } from "@/lib/auth-cookies";  // Assuming this is where your function is
 
 type CartItemCardProps = {
   item: CartItem;
 };
 
 export default function CartItemCard({ item }: CartItemCardProps) {
-  const { accessToken } = useAuthStore();
   const { setCart } = useCartStore();
   const [isRemoving, setIsRemoving] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    // Get the token from cookies when the component mounts
+    const fetchToken = async () => {
+      const token = await getAuthToken();
+      setAccessToken(token);
+    };
+
+    fetchToken();
+  }, []);
 
   const placeholderImageUrl = `https://placehold.co/150x150/e2e8f0/64748b?text=${encodeURIComponent(
     item.productName

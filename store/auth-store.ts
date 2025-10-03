@@ -59,25 +59,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-
-// export const useAuthStore = create<AuthState>()(
-//   persist(
-//     (set, get) => ({
-//       user: null,
-//       accessToken: null,
-
-//       // Action to set the user and token after a successful login
-//       login: (userData, token) => set({ user: userData, accessToken: token }),
-
-//       // Action to clear the user and token on logout
-//       logout: () => set({ user: null, accessToken: null }),
-
-//       // A helper function to easily check if the user is authenticated
-//       isAuthenticated: () => !!get().accessToken,
-//     }),
-//     {
-//       name: "e-commerce-auth-storage", // The key to use in localStorage
-//       storage: createJSONStorage(() => localStorage), // Use localStorage for persistence
-//     }
-//   )
-// );
